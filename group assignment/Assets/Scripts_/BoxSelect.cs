@@ -10,7 +10,7 @@ public class SelectableBox : MonoBehaviour
     public BoxType boxType = BoxType.Small;
 
     [Header("Heavy box behavior")]
-    public float heavyMaxLift = 0.25f;
+    public float heavyMaxLift = 0.25f;     // heavy can only lift a tiny amount
 
     [Header("Materials (URP/Lit)")]
     public Material normalMaterial;
@@ -38,12 +38,13 @@ public class SelectableBox : MonoBehaviour
         _mpb = new MaterialPropertyBlock();
 
         heavyBaseY = transform.position.y;
-
         IsFrozen = false;
+
         SetNormalInstant();
     }
 
     // ---------------- Visuals ----------------
+
     public void SetNormalInstant()
     {
         StopFade();
@@ -71,7 +72,7 @@ public class SelectableBox : MonoBehaviour
         _fadeRoutine = StartCoroutine(FadeToNormalRoutine());
     }
 
-    IEnumerator FadeToNormalRoutine()
+    private IEnumerator FadeToNormalRoutine()
     {
         if (!normalMaterial) yield break;
 
@@ -87,8 +88,8 @@ public class SelectableBox : MonoBehaviour
 
         _renderer.sharedMaterial = normalMaterial;
 
-        float t = 0f;
         float dur = Mathf.Max(0.0001f, fadeBackSeconds);
+        float t = 0f;
 
         while (t < 1f)
         {
@@ -103,7 +104,7 @@ public class SelectableBox : MonoBehaviour
         ClearPB();
     }
 
-    void StopFade()
+    private void StopFade()
     {
         if (_fadeRoutine != null)
         {
@@ -112,17 +113,17 @@ public class SelectableBox : MonoBehaviour
         }
     }
 
-    void ClearPB()
+    private void ClearPB()
     {
         _mpb.Clear();
         _renderer.SetPropertyBlock(_mpb);
     }
 
-    // ---------------- Physics states ----------------
+    // ---------------- Physics States ----------------
 
     public void BeginHold()
     {
-        // If it was frozen, selecting it again should thaw it.
+        // Selecting a frozen box again should unfreeze it first.
         if (IsFrozen) UnfreezeToDynamic();
 
         rb.linearVelocity = Vector3.zero;

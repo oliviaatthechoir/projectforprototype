@@ -10,39 +10,46 @@ public class GrabTool : MonoBehaviour
 
     [Header("Selection")]
     public int maxSmallSelections = 3;
-    public float selectRange = 6f;
+    public float selectRange = 12f;            // INCREASED
+    public float grabStartRange = 12f;         // INCREASED (for starting grab)
     public LayerMask selectableMask;
 
-    [Header("Grab Movement")]
+    [Header("Hold Distance")]
+    public float minGrabDistance = 1.5f;
+    public float maxGrabDistance = 12f;        // INCREASED
+    public float scrollSensitivity = 4.0f;     // INCREASED (stronger push/pull)
+
+    [Header("Hold Movement")]
     public float moveSpeed = 20f;
-    public float scrollSensitivity = 1.5f;
-    public float minGrabDistance = 1.0f;
-    public float maxGrabDistance = 6.0f;
+
+    [Header("Collision While Holding")]
+    public LayerMask holdCollisionMask = ~0;
+    public float holdSkin = 0.03f;
 
     [Header("Freeze Toggle")]
     public Key freezeKey = Key.F;
 
-    [Header("Grab rules")]
+    [Header("Grab Rules")]
     public bool requireAimAtSelectedToGrab = true;
 
     private readonly List<SelectableBox> selected = new();
     private readonly Dictionary<SelectableBox, Vector3> localOffsets = new();
 
     private bool isGrabbing;
-    private bool freezeMode;     // TOGGLE
+    private bool freezeMode; // TOGGLE
     private float grabDistance;
 
     void Start()
     {
         if (!cam) cam = Camera.main;
-        grabDistance = Vector3.Distance(cam.transform.position, grabPoint.position);
+        grabDistance = Mathf.Clamp(Vector3.Distance(cam.transform.position, grabPoint.position), minGrabDistance, maxGrabDistance);
     }
 
     void Update()
     {
         if (Mouse.current == null) return;
 
-        // Toggle freeze mode
+        // Toggle freeze
         if (Keyboard.current != null && Keyboard.current[freezeKey].wasPressedThisFrame)
             freezeMode = !freezeMode;
 
@@ -50,15 +57,20 @@ public class GrabTool : MonoBehaviour
         HandleGrab();
     }
 
+    // ---------------- Selection ----------------
+
     void HandleSelect()
     {
         if (!Mouse.current.leftButton.wasPressedThisFrame) return;
-        if (!TryRaycastBox(out var box)) return;
 
-        // Clicking a frozen box should unfreeze + select it again
+        if (!TryRaycastBox(selectRange, out var box))
+            return;
+
+        // Clicking a frozen box = unfreeze + select, and reset freeze toggle OFF
         if (box.IsFrozen)
         {
-            // Heavy rule: heavy selection clears others
+            freezeMode = false;
+
             if (box.boxType == BoxType.Heavy)
             {
                 ClearSelectionVisualsOnly();
@@ -70,7 +82,6 @@ public class GrabTool : MonoBehaviour
                 return;
             }
 
-            // If heavy currently selected, clear it first
             if (HasHeavySelected())
             {
                 ClearSelectionVisualsOnly();
@@ -92,7 +103,7 @@ public class GrabTool : MonoBehaviour
             return;
         }
 
-        // Heavy selection clears others
+        // Heavy: only one, clear others
         if (box.boxType == BoxType.Heavy)
         {
             ClearSelectionVisualsOnly();
@@ -103,29 +114,32 @@ public class GrabTool : MonoBehaviour
             return;
         }
 
-        // Small selection clears heavy if needed
+        // Selecting small while heavy selected clears heavy
         if (HasHeavySelected())
         {
             ClearSelectionVisualsOnly();
             selected.Clear();
         }
 
+        // Max small selections
         if (CountSmallSelected() >= maxSmallSelections) return;
 
         selected.Add(box);
         box.SetSelectedVisual();
     }
 
+    // ---------------- Grabbing ----------------
+
     void HandleGrab()
     {
-        // Start grab only if something is selected (and optionally you're aiming at a selected box)
+        // Start grab
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             if (selected.Count == 0) return;
 
             if (requireAimAtSelectedToGrab)
             {
-                if (!TryRaycastBox(out var aimedBox)) return;
+                if (!TryRaycastBox(grabStartRange, out var aimedBox)) return;
                 if (!selected.Contains(aimedBox)) return;
             }
 
@@ -134,7 +148,6 @@ public class GrabTool : MonoBehaviour
 
             foreach (var b in selected)
             {
-                // refresh baseY for heavy so "lift clamp" is from current position
                 if (b.boxType == BoxType.Heavy)
                     b.heavyBaseY = b.transform.position.y;
 
@@ -149,14 +162,14 @@ public class GrabTool : MonoBehaviour
 
         if (!isGrabbing) return;
 
-        // PREVIEW: while holding, show whether freeze mode is armed
+        // Preview freeze while holding
         foreach (var b in selected)
         {
             if (freezeMode) b.SetFrozenVisual();
             else b.SetSelectedVisual();
         }
 
-        // Scroll push/pull
+        // Scroll push/pull (stronger)
         float scrollRaw = Mouse.current.scroll.ReadValue().y;
         float scroll = Mathf.Clamp(scrollRaw / 120f, -1f, 1f);
 
@@ -166,24 +179,47 @@ public class GrabTool : MonoBehaviour
         grabPoint.position = cam.transform.position + cam.transform.forward * grabDistance;
         grabPoint.rotation = cam.transform.rotation;
 
-        // Move held boxes (kinematic)
+        // Move held boxes with sweep-test anti-clip
         foreach (var b in selected)
         {
-            if (!localOffsets.TryGetValue(b, out var offLocal)) continue;
+            if (!localOffsets.TryGetValue(b, out var offLocal))
+                continue;
 
             Vector3 targetPos = grabPoint.position + grabPoint.rotation * offLocal;
 
+            // Heavy: clamp lift
             if (b.boxType == BoxType.Heavy)
             {
                 float maxY = b.heavyBaseY + b.heavyMaxLift;
                 targetPos.y = Mathf.Min(targetPos.y, maxY);
             }
 
-            Vector3 newPos = Vector3.Lerp(b.transform.position, targetPos, Time.deltaTime * moveSpeed);
-            b.rb.MovePosition(newPos);
+            Vector3 desired = Vector3.Lerp(b.rb.position, targetPos, Time.deltaTime * moveSpeed);
+
+            Vector3 current = b.rb.position;
+            Vector3 delta = desired - current;
+            float dist = delta.magnitude;
+
+            if (dist > 0.0001f)
+            {
+                Vector3 dir = delta / dist;
+
+                // prevent clipping through environment
+                if (b.rb.SweepTest(dir, out RaycastHit hit, dist, QueryTriggerInteraction.Ignore))
+                {
+                    int hitLayer = hit.collider.gameObject.layer;
+                    if (((1 << hitLayer) & holdCollisionMask.value) != 0)
+                    {
+                        float safeDist = Mathf.Max(0f, hit.distance - holdSkin);
+                        desired = current + dir * safeDist;
+                    }
+                }
+
+                b.rb.MovePosition(desired);
+            }
         }
 
-        // Release
+        // Release grab
         if (Mouse.current.rightButton.wasReleasedThisFrame)
         {
             foreach (var b in selected)
@@ -199,17 +235,23 @@ public class GrabTool : MonoBehaviour
                 }
             }
 
-            // CRITICAL RESET so old selections cannot "wake up" later
+            // IMPORTANT: reset selection + offsets so old boxes never "wake up"
             isGrabbing = false;
             localOffsets.Clear();
             selected.Clear();
+
+            // IMPORTANT: Freeze should start OFF after you actually froze something
+            if (freezeMode) freezeMode = false;
         }
     }
 
-    bool TryRaycastBox(out SelectableBox box)
+    // ---------------- Helpers ----------------
+
+    bool TryRaycastBox(float range, out SelectableBox box)
     {
         box = null;
-        if (!Physics.Raycast(cam.transform.position, cam.transform.forward, out var hit, selectRange, selectableMask))
+
+        if (!Physics.Raycast(cam.transform.position, cam.transform.forward, out var hit, range, selectableMask))
             return false;
 
         box = hit.collider.GetComponentInParent<SelectableBox>();
