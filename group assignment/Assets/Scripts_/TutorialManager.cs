@@ -129,15 +129,15 @@ public class TutorialManager : MonoBehaviour
                 break;
 
             case Step.LiftAndDrop:
-                tutorialText.text = "Move the block into the air and RELEASE right click";
+                tutorialText.text = "Try moving the block into the air and RELEASE right click";
                 break;
 
             case Step.FreezeCube:
-                tutorialText.text = "The block fell.\nNow press F before releasing RIGHT CLICK to FREEZE it";
+                tutorialText.text = "Oh! The block fell.\nNow try again but press F before releasing RIGHT CLICK to FREEZE it";
                 break;
 
             case Step.BuildStairs:
-                tutorialText.text = "Great! Use that knowledge to build a staircase up this wall";
+                tutorialText.text = "Great! Now try to use that knowledge to build a staircase up this wall using the boxes in this room";
                 break;
 
             case Step.PullBigBox:
