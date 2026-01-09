@@ -26,92 +26,118 @@ public class TutorialManager : MonoBehaviour
     public GrabTool grabTool;
 
     private Step currentStep = Step.SelectCube;
-    private bool waitingForDelay;
+    private Coroutine stepRoutine;
+    private bool isAdvancing;
+
+    void Awake()
+    {
+        if (!grabTool) grabTool = FindFirstObjectByType<GrabTool>();
+    }
+
+    void OnEnable()
+    {
+        HookEvents(true);
+    }
+
+    void OnDisable()
+    {
+        HookEvents(false);
+    }
 
     void Start()
     {
-        if (!grabTool) grabTool = FindFirstObjectByType<GrabTool>();
         ShowCurrentStepText();
     }
 
-    void Update()
+    // ---------------- Event Hookup ----------------
+
+    void HookEvents(bool hook)
     {
-        if (waitingForDelay) return;
-        if (!grabTool || !tutorialText) return;
+        if (!grabTool) return;
 
-        switch (currentStep)
+        if (hook)
         {
-            case Step.SelectCube:
-                // Any selection
-                if (grabTool.SelectedSomethingThisFrame || grabTool.HasAnySelected)
-                    AdvanceTo(Step.GrabCube);
-                break;
-
-            case Step.GrabCube:
-                // Started holding (right click)
-                if (grabTool.GrabStartedThisFrame || grabTool.IsGrabbing)
-                    AdvanceTo(Step.LiftAndDrop);
-                break;
-
-            case Step.LiftAndDrop:
-                // Released WITHOUT freezing
-                if (grabTool.DroppedUnfrozenThisFrame)
-                    AdvanceTo(Step.FreezeCube);
-                break;
-
-            case Step.FreezeCube:
-                // Released WITH freezing
-                if (grabTool.FrozeThisFrame)
-                    AdvanceTo(Step.BuildStairs);
-                break;
-
-            case Step.BuildStairs:
-                // handled by WallTrigger -> OnReachedWallTop()
-                break;
-
-            case Step.PullBigBox:
-                // handled by EndTrigger -> OnCrossedGapEnd()
-                break;
-
-            case Step.TutorialDone:
-                break;
+            grabTool.BoxSelected += OnBoxSelected;
+            grabTool.GrabStarted += OnGrabStarted;
+            grabTool.DroppedNormally += OnDroppedNormally;
+            grabTool.FrozenOnRelease += OnFrozenOnRelease;
+        }
+        else
+        {
+            grabTool.BoxSelected -= OnBoxSelected;
+            grabTool.GrabStarted -= OnGrabStarted;
+            grabTool.DroppedNormally -= OnDroppedNormally;
+            grabTool.FrozenOnRelease -= OnFrozenOnRelease;
         }
     }
 
-    // Trigger script calls this when player reaches top of wall
+    // ---------------- Tutorial Progress (Event Driven) ----------------
+
+    void OnBoxSelected(SelectableBox box)
+    {
+        if (currentStep != Step.SelectCube) return;
+        AdvanceTo(Step.GrabCube);
+    }
+
+    void OnGrabStarted()
+    {
+        if (currentStep != Step.GrabCube) return;
+        AdvanceTo(Step.LiftAndDrop);
+    }
+
+    void OnDroppedNormally()
+    {
+        if (currentStep != Step.LiftAndDrop) return;
+        AdvanceTo(Step.FreezeCube);
+    }
+
+    void OnFrozenOnRelease()
+    {
+        if (currentStep != Step.FreezeCube) return;
+        AdvanceTo(Step.BuildStairs);
+    }
+
+    // ---------------- Trigger calls from your WallTrigger / EndTrigger ----------------
+
+    // Call this from your wall-top trigger when the player reaches the top.
     public void OnReachedWallTop()
     {
-        if (waitingForDelay) return;
-        if (currentStep == Step.BuildStairs)
-            AdvanceTo(Step.PullBigBox);
+        if (currentStep != Step.BuildStairs) return;
+        AdvanceTo(Step.PullBigBox);
     }
 
-    // Trigger script calls this when player crosses the gap / finishes
+    // Call this from your end/gap trigger when the player crosses the gap / finishes.
     public void OnCrossedGapEnd()
     {
-        if (waitingForDelay) return;
-        if (currentStep == Step.PullBigBox)
-            AdvanceTo(Step.TutorialDone);
+        if (currentStep != Step.PullBigBox) return;
+        AdvanceTo(Step.TutorialDone);
     }
 
-    // ---------------- STEP FLOW ----------------
+    // ---------------- Step Flow ----------------
 
     void AdvanceTo(Step next)
     {
-        if (waitingForDelay) return;
-        StartCoroutine(AdvanceWithDelay(next));
+        if (isAdvancing) return;
+
+        // Prevent re-advancing to the same step or going backwards
+        if (next == currentStep) return;
+
+        if (stepRoutine != null) StopCoroutine(stepRoutine);
+        stepRoutine = StartCoroutine(AdvanceWithDelay(next));
     }
 
     IEnumerator AdvanceWithDelay(Step next)
     {
-        waitingForDelay = true;
+        isAdvancing = true;
 
-        yield return new WaitForSeconds(textDelay);
+        if (textDelay > 0f)
+            yield return new WaitForSeconds(textDelay);
 
         currentStep = next;
         ShowCurrentStepText();
 
-        waitingForDelay = false;
+        isAdvancing = false;
+        stepRoutine = null;
     }
 
     void ShowCurrentStepText()
@@ -129,19 +155,19 @@ public class TutorialManager : MonoBehaviour
                 break;
 
             case Step.LiftAndDrop:
-                tutorialText.text = "Try moving the block into the air and RELEASE right click";
+                tutorialText.text = "Try movingthe box into the air and RELEASE right click";
                 break;
 
             case Step.FreezeCube:
-                tutorialText.text = "Oh! The block fell.\nNow try again but press F before releasing RIGHT CLICK to FREEZE it";
+                tutorialText.text = "Oh The box fell!\nNow try again but press F before releasing RIGHT CLICK to FREEZE it";
                 break;
 
             case Step.BuildStairs:
-                tutorialText.text = "Great! Now try to use that knowledge to build a staircase up this wall using the boxes in this room";
+                tutorialText.text = "Great! Now try to build a staircase up this wall using the boxes";
                 break;
 
             case Step.PullBigBox:
-                tutorialText.text = "Try selecting the BIG box and drag it toward you using the SCROLL WHEEL";
+                tutorialText.text = "Select the BIG box and drag it toward you using the SCROLL WHEEL";
                 break;
 
             case Step.TutorialDone:

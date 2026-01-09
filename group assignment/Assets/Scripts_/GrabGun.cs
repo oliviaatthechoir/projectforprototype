@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,23 +12,24 @@ public class GrabTool : MonoBehaviour
     [Header("Selection / Grab Range")]
     public int maxSmallSelections = 3;
 
-    [Tooltip("Select + grab start range (same).")]
-    public float interactRange = 35f;              // LONGER by default
+    [Tooltip("How far you can SELECT and START grabbing (same range).")]
+    public float interactRange = 40f;
 
-    [Tooltip("Bigger = easier to start grab at distance (GMod-ish).")]
-    public float grabAimRadius = 0.2f;             // forgiving aim
+    [Tooltip("Sphere radius for aim checks (helps grabbing at long range).")]
+    public float grabAimRadius = 0.25f;
 
     public LayerMask selectableMask;
 
     [Header("Hold Distance")]
     public float minGrabDistance = 2f;
-    public float maxGrabDistance = 60f;            // LONGER hold range
+    public float maxGrabDistance = 60f;
 
-    [Tooltip("Scroll strength. Higher = stronger. Start with 0.002�0.01")]
-    public float scrollSensitivity = 0.004f;       // STRONG
+    [Header("Scroll Feel")]
+    [Tooltip("Higher = faster push/pull. Try 1.0–3.0")]
+    public float scrollStrength = 2.0f;
 
-    [Tooltip("Extra multiplier.")]
-    public float scrollDistanceScale = 1.0f;
+    [Tooltip("If scroll direction feels backwards, enable this.")]
+    public bool invertScroll = false;
 
     [Header("Hold Movement")]
     public float moveSpeed = 20f;
@@ -54,58 +55,58 @@ public class GrabTool : MonoBehaviour
     public event Action<float> ScrolledWhileHolding;
     // --------------------------------------------------------
 
-    // Public state for tutorial
-    public bool IsGrabbing => _isGrabbing;
-    public bool HasAnySelected => _selected.Count > 0;
-    public bool FreezeMode => _freezeMode;
+    private readonly List<SelectableBox> selected = new();
+    private readonly Dictionary<SelectableBox, Vector3> localOffsets = new();
 
-    // One-frame tutorial flags
-    public bool DroppedUnfrozenThisFrame { get; private set; }
-    public bool FrozeThisFrame { get; private set; }
+    private bool isGrabbing;
+    private bool freezeMode;
+    private float grabDistance;
+
+    // These exist (won’t break anything even if you no longer use them)
     public bool SelectedSomethingThisFrame { get; private set; }
     public bool GrabStartedThisFrame { get; private set; }
+    public bool DroppedUnfrozenThisFrame { get; private set; }
+    public bool FrozeThisFrame { get; private set; }
 
-    private readonly List<SelectableBox> _selected = new();
-    private readonly Dictionary<SelectableBox, Vector3> _localOffsets = new();
+    public bool IsGrabbingNow => isGrabbing;
+    public bool HasAnySelected => selected.Count > 0;
 
-    private bool _isGrabbing;
-    private bool _freezeMode;
-    private float _grabDistance;
+    private const float WheelStep = 120f; // many mice report +/-120 per notch
 
     void Start()
     {
         if (!cam) cam = Camera.main;
 
-        // sensible start
-        _grabDistance = Mathf.Clamp(6f, minGrabDistance, maxGrabDistance);
-
-        if (grabPoint == null)
+        if (!grabPoint)
         {
-            // safety: create a grab point if missing
             var go = new GameObject("GrabPoint");
             grabPoint = go.transform;
         }
+
+        grabDistance = Mathf.Clamp(6f, minGrabDistance, maxGrabDistance);
     }
 
     void Update()
     {
         if (Mouse.current == null) return;
 
-        // reset one-shot flags
-        DroppedUnfrozenThisFrame = false;
-        FrozeThisFrame = false;
-        SelectedSomethingThisFrame = false;
-        GrabStartedThisFrame = false;
-
-        // Toggle freeze
+        // Freeze toggle (F)
         if (Keyboard.current != null && Keyboard.current[freezeKey].wasPressedThisFrame)
         {
-            _freezeMode = !_freezeMode;
-            FreezeModeChanged?.Invoke(_freezeMode);
+            freezeMode = !freezeMode;
+            FreezeModeChanged?.Invoke(freezeMode);
         }
 
         HandleSelect();
         HandleGrab();
+    }
+
+    void LateUpdate()
+    {
+        SelectedSomethingThisFrame = false;
+        GrabStartedThisFrame = false;
+        DroppedUnfrozenThisFrame = false;
+        FrozeThisFrame = false;
     }
 
     // ---------------- Selection ----------------
@@ -118,7 +119,7 @@ public class GrabTool : MonoBehaviour
             return;
 
         // Toggle deselect
-        if (_selected.Contains(box))
+        if (selected.Contains(box))
         {
             Deselect(box);
             return;
@@ -127,8 +128,8 @@ public class GrabTool : MonoBehaviour
         // Clicking frozen box: unfreeze + select, and freeze mode resets off
         if (box.IsFrozen)
         {
-            _freezeMode = false;
-            FreezeModeChanged?.Invoke(_freezeMode);
+            freezeMode = false;
+            FreezeModeChanged?.Invoke(freezeMode);
             box.UnfreezeToDynamic();
         }
 
@@ -136,28 +137,30 @@ public class GrabTool : MonoBehaviour
         if (box.boxType == BoxType.Heavy)
         {
             ClearSelectionVisualsOnly();
-            _selected.Clear();
+            selected.Clear();
 
-            _selected.Add(box);
+            selected.Add(box);
             box.SetSelectedVisual();
-            BoxSelected?.Invoke(box);
+
             SelectedSomethingThisFrame = true;
+            BoxSelected?.Invoke(box);
             return;
         }
 
-        // If heavy selected, clear it
+        // If heavy selected, clear it before selecting smalls
         if (HasHeavySelected())
         {
             ClearSelectionVisualsOnly();
-            _selected.Clear();
+            selected.Clear();
         }
 
         if (CountSmallSelected() >= maxSmallSelections) return;
 
-        _selected.Add(box);
+        selected.Add(box);
         box.SetSelectedVisual();
-        BoxSelected?.Invoke(box);
+
         SelectedSomethingThisFrame = true;
+        BoxSelected?.Invoke(box);
     }
 
     // ---------------- Grabbing ----------------
@@ -167,36 +170,33 @@ public class GrabTool : MonoBehaviour
         // Start grab
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
-            if (_selected.Count == 0) return;
+            if (selected.Count == 0) return;
 
             SelectableBox aimedBox = null;
 
             if (requireAimAtSelectedToGrab)
             {
-                // Forgiving aim so you can grab at the same distance you can select
                 if (!TrySpherecastBox(interactRange, grabAimRadius, out aimedBox)) return;
-                if (!_selected.Contains(aimedBox)) return;
-            }
-            else
-            {
-                aimedBox = _selected[0];
+                if (!selected.Contains(aimedBox)) return;
+
+                // Start distance based on what you aimed at (feels good at range)
+                grabDistance = Mathf.Clamp(
+                    Vector3.Distance(cam.transform.position, aimedBox.transform.position),
+                    minGrabDistance, maxGrabDistance
+                );
             }
 
-            // Initialize grab distance from the grabbed object (so it doesn't feel "short")
-            float distToBox = Vector3.Distance(cam.transform.position, aimedBox.transform.position);
-            _grabDistance = Mathf.Clamp(distToBox, minGrabDistance, maxGrabDistance);
+            isGrabbing = true;
+            GrabStartedThisFrame = true;
+            GrabStarted?.Invoke();
 
-            // Update grabPoint immediately
-            grabPoint.position = cam.transform.position + cam.transform.forward * _grabDistance;
+            localOffsets.Clear();
+
+            // Set grab point immediately
+            grabPoint.position = cam.transform.position + cam.transform.forward * grabDistance;
             grabPoint.rotation = cam.transform.rotation;
 
-            _isGrabbing = true;
-            GrabStarted?.Invoke();
-            GrabStartedThisFrame = true;
-
-            _localOffsets.Clear();
-
-            foreach (var b in _selected)
+            foreach (var b in selected)
             {
                 if (b.boxType == BoxType.Heavy)
                     b.heavyBaseY = b.transform.position.y;
@@ -204,44 +204,52 @@ public class GrabTool : MonoBehaviour
                 b.BeginHold();
                 b.SetSelectedVisual();
 
+                // Store offset in grabPoint local space…
                 Vector3 offsetWorld = b.transform.position - grabPoint.position;
                 Vector3 offsetLocal = Quaternion.Inverse(grabPoint.rotation) * offsetWorld;
-                _localOffsets[b] = offsetLocal;
+
+                // ✅ KEY FIX: DO NOT preserve depth offset.
+                // Depth is controlled only by grabDistance, so it will not "spring back".
+                offsetLocal.z = 0f;
+
+                localOffsets[b] = offsetLocal;
             }
         }
 
-        if (!_isGrabbing) return;
+        if (!isGrabbing) return;
 
-        // Preview freeze while holding
-        foreach (var b in _selected)
-            if (_freezeMode) b.SetFrozenVisual();
+        // Visual preview while holding
+        foreach (var b in selected)
+            if (freezeMode) b.SetFrozenVisual();
             else b.SetSelectedVisual();
 
-        // SCROLL push/pull (RAW + strong)
-        Vector2 scrollVec = Mouse.current.scroll.ReadValue();
-        float scrollRaw = scrollVec.y;
-
+        // Scroll push/pull (true magnet, both directions)
+        float scrollRaw = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scrollRaw) > 0.01f)
         {
             ScrolledWhileHolding?.Invoke(scrollRaw);
 
-            // scrollRaw is usually +/-120 per notch on many mice.
-            // Use raw (strong), scaled by distance for that GMod feel.
-            float dist01 = Mathf.InverseLerp(minGrabDistance, maxGrabDistance, _grabDistance);
-            float distanceFactor = Mathf.Lerp(1f, 10f, dist01);
+            float notches = scrollRaw / WheelStep;
+            if (invertScroll) notches *= -1f;
 
-            float delta = scrollRaw * scrollSensitivity * scrollDistanceScale * distanceFactor;
-            _grabDistance = Mathf.Clamp(_grabDistance + delta, minGrabDistance, maxGrabDistance);
+            // Stronger when farther away (GMod-ish)
+            float dist01 = Mathf.InverseLerp(minGrabDistance, maxGrabDistance, grabDistance);
+            float distanceFactor = Mathf.Lerp(1f, 8f, dist01);
+
+            float delta = notches * scrollStrength * distanceFactor;
+
+            // ✅ delta can be positive OR negative -> push OR pull
+            grabDistance = Mathf.Clamp(grabDistance + delta, minGrabDistance, maxGrabDistance);
         }
 
-        // keep grabPoint anchored
-        grabPoint.position = cam.transform.position + cam.transform.forward * _grabDistance;
+        // Keep grab point in front of camera
+        grabPoint.position = cam.transform.position + cam.transform.forward * grabDistance;
         grabPoint.rotation = cam.transform.rotation;
 
         // Move held boxes with sweep-test anti-clip
-        foreach (var b in _selected)
+        foreach (var b in selected)
         {
-            if (!_localOffsets.TryGetValue(b, out var offLocal))
+            if (!localOffsets.TryGetValue(b, out var offLocal))
                 continue;
 
             Vector3 targetPos = grabPoint.position + grabPoint.rotation * offLocal;
@@ -282,9 +290,9 @@ public class GrabTool : MonoBehaviour
         {
             GrabReleased?.Invoke();
 
-            bool froze = _freezeMode;
+            bool froze = freezeMode;
 
-            foreach (var b in _selected)
+            foreach (var b in selected)
             {
                 if (froze) b.FreezeHard();
                 else { b.DropDynamic(); b.FadeToNormal(); }
@@ -292,35 +300,36 @@ public class GrabTool : MonoBehaviour
 
             if (froze)
             {
-                FrozenOnRelease?.Invoke();
                 FrozeThisFrame = true;
+                FrozenOnRelease?.Invoke();
             }
             else
             {
-                DroppedNormally?.Invoke();
                 DroppedUnfrozenThisFrame = true;
+                DroppedNormally?.Invoke();
             }
 
-            _isGrabbing = false;
-            _localOffsets.Clear();
-            _selected.Clear();
+            isGrabbing = false;
+            localOffsets.Clear();
+            selected.Clear();
 
-            // freeze resets off after use
-            if (_freezeMode)
+            // Freeze resets OFF after use
+            if (freezeMode)
             {
-                _freezeMode = false;
-                FreezeModeChanged?.Invoke(_freezeMode);
+                freezeMode = false;
+                FreezeModeChanged?.Invoke(freezeMode);
             }
         }
     }
 
-    // ---------------- Helpers ----------------
+    // ---------------- Ray helpers ----------------
 
     bool TryRaycastBox(float range, out SelectableBox box)
     {
         box = null;
 
-        if (!Physics.Raycast(cam.transform.position, cam.transform.forward, out var hit, range, selectableMask, QueryTriggerInteraction.Ignore))
+        if (!Physics.Raycast(cam.transform.position, cam.transform.forward,
+                out var hit, range, selectableMask, QueryTriggerInteraction.Ignore))
             return false;
 
         box = hit.collider.GetComponentInParent<SelectableBox>();
@@ -331,17 +340,19 @@ public class GrabTool : MonoBehaviour
     {
         box = null;
 
-        if (!Physics.SphereCast(cam.transform.position, radius, cam.transform.forward, out var hit, range, selectableMask, QueryTriggerInteraction.Ignore))
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        if (!Physics.SphereCast(ray, radius, out var hit, range, selectableMask, QueryTriggerInteraction.Ignore))
             return false;
 
         box = hit.collider.GetComponentInParent<SelectableBox>();
         return box != null;
     }
 
+    // ---------------- Selection helpers ----------------
+
     void Deselect(SelectableBox box)
     {
-        _selected.Remove(box);
-
+        selected.Remove(box);
         if (box.IsFrozen) box.SetFrozenVisual();
         else box.SetNormalInstant();
 
@@ -350,17 +361,17 @@ public class GrabTool : MonoBehaviour
 
     void ClearSelectionVisualsOnly()
     {
-        foreach (var b in _selected)
+        foreach (var b in selected)
             if (b.IsFrozen) b.SetFrozenVisual();
             else b.SetNormalInstant();
     }
 
-    bool HasHeavySelected() => _selected.Count == 1 && _selected[0].boxType == BoxType.Heavy;
+    bool HasHeavySelected() => selected.Count == 1 && selected[0].boxType == BoxType.Heavy;
 
     int CountSmallSelected()
     {
         int c = 0;
-        foreach (var s in _selected)
+        foreach (var s in selected)
             if (s.boxType == BoxType.Small) c++;
         return c;
     }
