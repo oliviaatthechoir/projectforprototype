@@ -130,7 +130,7 @@ public class SelectableBox : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
 
         rb.useGravity = false;
-        rb.isKinematic = true;                 // stable while held
+        rb.isKinematic = true;                 
         rb.constraints = RigidbodyConstraints.None;
     }
 

@@ -10,14 +10,14 @@ public class GrabTool : MonoBehaviour
 
     [Header("Selection")]
     public int maxSmallSelections = 3;
-    public float selectRange = 12f;            // INCREASED
-    public float grabStartRange = 12f;         // INCREASED (for starting grab)
+    public float selectRange = 12f;            
+    public float grabStartRange = 12f;         
     public LayerMask selectableMask;
 
     [Header("Hold Distance")]
     public float minGrabDistance = 1.5f;
-    public float maxGrabDistance = 12f;        // INCREASED
-    public float scrollSensitivity = 4.0f;     // INCREASED (stronger push/pull)
+    public float maxGrabDistance = 12f;        
+    public float scrollSensitivity = 4.0f;     
 
     [Header("Hold Movement")]
     public float moveSpeed = 20f;
@@ -66,7 +66,7 @@ public class GrabTool : MonoBehaviour
         if (!TryRaycastBox(selectRange, out var box))
             return;
 
-        // Clicking a frozen box = unfreeze + select, and reset freeze toggle OFF
+        // Clicking a frozen box = unfreeze + select
         if (box.IsFrozen)
         {
             freezeMode = false;
@@ -169,7 +169,7 @@ public class GrabTool : MonoBehaviour
             else b.SetSelectedVisual();
         }
 
-        // Scroll push/pull (stronger)
+        // Scroll push/pull
         float scrollRaw = Mouse.current.scroll.ReadValue().y;
         float scroll = Mathf.Clamp(scrollRaw / 120f, -1f, 1f);
 
@@ -179,7 +179,7 @@ public class GrabTool : MonoBehaviour
         grabPoint.position = cam.transform.position + cam.transform.forward * grabDistance;
         grabPoint.rotation = cam.transform.rotation;
 
-        // Move held boxes with sweep-test anti-clip
+        
         foreach (var b in selected)
         {
             if (!localOffsets.TryGetValue(b, out var offLocal))
@@ -235,18 +235,17 @@ public class GrabTool : MonoBehaviour
                 }
             }
 
-            // IMPORTANT: reset selection + offsets so old boxes never "wake up"
+            // reset selection 
             isGrabbing = false;
             localOffsets.Clear();
             selected.Clear();
 
-            // IMPORTANT: Freeze should start OFF after you actually froze something
+            // Freeze start OFF 
             if (freezeMode) freezeMode = false;
         }
     }
 
-    // ---------------- Helpers ----------------
-
+    
     bool TryRaycastBox(float range, out SelectableBox box)
     {
         box = null;
