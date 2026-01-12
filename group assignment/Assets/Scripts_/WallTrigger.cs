@@ -1,8 +1,11 @@
 using UnityEngine;
 
-public class TutorialTriggerWallTop : MonoBehaviour
+public class TutorialTriggerRememberFreeze : MonoBehaviour
 {
     public TutorialManager tutorial;
+
+    [Tooltip("If true, disables this trigger after firing once.")]
+    public bool oneShot = true;
 
     void Awake()
     {
@@ -12,9 +15,11 @@ public class TutorialTriggerWallTop : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        tutorial.OnReachedWallTop();
+        if (!tutorial) return;
 
-        // optional: disable so it only happens once
-        gameObject.SetActive(false);
+        tutorial.ShowFreezeReminder();
+
+        if (oneShot)
+            gameObject.SetActive(false);
     }
 }
