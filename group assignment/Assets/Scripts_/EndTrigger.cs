@@ -1,8 +1,9 @@
 using UnityEngine;
 
-public class TutorialTriggerGapEnd : MonoBehaviour
+public class TutorialTriggerEndDone : MonoBehaviour
 {
     public TutorialManager tutorial;
+    public bool oneShot = true;
 
     void Awake()
     {
@@ -12,7 +13,11 @@ public class TutorialTriggerGapEnd : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        tutorial.OnCrossedGapEnd();
-        gameObject.SetActive(false);
+        if (!tutorial) return;
+
+        tutorial.ShowTutorialDone();
+
+        if (oneShot)
+            gameObject.SetActive(false);
     }
 }

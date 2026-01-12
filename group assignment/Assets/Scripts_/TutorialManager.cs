@@ -4,175 +4,75 @@ using TMPro;
 
 public class TutorialManager : MonoBehaviour
 {
-    public enum Step
-    {
-        SelectCube,
-        GrabCube,
-        LiftAndDrop,
-        FreezeCube,
-        BuildStairs,
-        PullBigBox,
-        TutorialDone
-    }
-
     [Header("UI")]
     public TextMeshProUGUI tutorialText;
 
     [Header("Timing")]
-    [Tooltip("Delay before switching to the next tutorial text.")]
-    public float textDelay = 0.6f;
+    [Tooltip("How long each message stays on screen.")]
+    public float messageDuration = 4.0f;
 
-    [Header("References")]
-    public GrabTool grabTool;
+    [Tooltip("Delay before a message appears (nice little pause).")]
+    public float showDelay = 0.25f;
 
-    private Step currentStep = Step.SelectCube;
-    private Coroutine stepRoutine;
-    private bool isAdvancing;
+    [Header("Messages")]
+    [TextArea(2, 6)]
+    public string startMessage =
+        "You’ve unlocked the gravity gun!.\nTry it out on the box in front of you.";
 
-    void Awake()
-    {
-        if (!grabTool) grabTool = FindFirstObjectByType<GrabTool>();
-    }
+    [TextArea(2, 6)]
+    public string freezeReminderMessage =
+        "Remember: you can freeze boxes in the air with F.";
 
-    void OnEnable()
-    {
-        HookEvents(true);
-    }
+    [TextArea(2, 6)]
+    public string tutorialDoneMessage =
+        "Great job — tutorial done!";
 
-    void OnDisable()
-    {
-        HookEvents(false);
-    }
+    private Coroutine _messageRoutine;
 
     void Start()
     {
-        ShowCurrentStepText();
+        // show a single starting message
+        ShowMessage(startMessage);
     }
 
-    // ---------------- Event Hookup ----------------
-
-    void HookEvents(bool hook)
+    // Call from triggers (or anything else)
+    public void ShowFreezeReminder()
     {
-        if (!grabTool) return;
-
-        if (hook)
-        {
-            grabTool.BoxSelected += OnBoxSelected;
-            grabTool.GrabStarted += OnGrabStarted;
-            grabTool.DroppedNormally += OnDroppedNormally;
-            grabTool.FrozenOnRelease += OnFrozenOnRelease;
-        }
-        else
-        {
-            grabTool.BoxSelected -= OnBoxSelected;
-            grabTool.GrabStarted -= OnGrabStarted;
-            grabTool.DroppedNormally -= OnDroppedNormally;
-            grabTool.FrozenOnRelease -= OnFrozenOnRelease;
-        }
+        ShowMessage(freezeReminderMessage);
     }
 
-    // ---------------- Tutorial Progress (Event Driven) ----------------
-
-    void OnBoxSelected(SelectableBox box)
+    public void ShowTutorialDone()
     {
-        if (currentStep != Step.SelectCube) return;
-        AdvanceTo(Step.GrabCube);
+        ShowMessage(tutorialDoneMessage);
     }
 
-    void OnGrabStarted()
-    {
-        if (currentStep != Step.GrabCube) return;
-        AdvanceTo(Step.LiftAndDrop);
-    }
+    // ---------------- Core UI ----------------
 
-    void OnDroppedNormally()
-    {
-        if (currentStep != Step.LiftAndDrop) return;
-        AdvanceTo(Step.FreezeCube);
-    }
-
-    void OnFrozenOnRelease()
-    {
-        if (currentStep != Step.FreezeCube) return;
-        AdvanceTo(Step.BuildStairs);
-    }
-
-    // ---------------- Trigger calls from your WallTrigger / EndTrigger ----------------
-
-    // Call this from your wall-top trigger when the player reaches the top.
-    public void OnReachedWallTop()
-    {
-        if (currentStep != Step.BuildStairs) return;
-        AdvanceTo(Step.PullBigBox);
-    }
-
-    // Call this from your end/gap trigger when the player crosses the gap / finishes.
-    public void OnCrossedGapEnd()
-    {
-        if (currentStep != Step.PullBigBox) return;
-        AdvanceTo(Step.TutorialDone);
-    }
-
-    // ---------------- Step Flow ----------------
-
-    void AdvanceTo(Step next)
-    {
-        if (isAdvancing) return;
-
-        // Prevent re-advancing to the same step or going backwards
-        if (next == currentStep) return;
-
-        if (stepRoutine != null) StopCoroutine(stepRoutine);
-        stepRoutine = StartCoroutine(AdvanceWithDelay(next));
-    }
-
-    IEnumerator AdvanceWithDelay(Step next)
-    {
-        isAdvancing = true;
-
-        if (textDelay > 0f)
-            yield return new WaitForSeconds(textDelay);
-
-        currentStep = next;
-        ShowCurrentStepText();
-
-        isAdvancing = false;
-        stepRoutine = null;
-    }
-
-    void ShowCurrentStepText()
+    public void ShowMessage(string msg)
     {
         if (!tutorialText) return;
 
-        switch (currentStep)
-        {
-            case Step.SelectCube:
-                tutorialText.text = "Try selecting the cube with LEFT CLICK";
-                break;
+        if (_messageRoutine != null)
+            StopCoroutine(_messageRoutine);
 
-            case Step.GrabCube:
-                tutorialText.text = "Nice! Now try moving the box by holding RIGHT CLICK";
-                break;
+        _messageRoutine = StartCoroutine(ShowMessageRoutine(msg));
+    }
 
-            case Step.LiftAndDrop:
-                tutorialText.text = "Try movingthe box into the air and RELEASE right click";
-                break;
+    IEnumerator ShowMessageRoutine(string msg)
+    {
+        // optional delay before it appears
+        if (showDelay > 0f)
+            yield return new WaitForSeconds(showDelay);
 
-            case Step.FreezeCube:
-                tutorialText.text = "Oh The box fell!\nNow try again but press F before releasing RIGHT CLICK to FREEZE it";
-                break;
+        tutorialText.gameObject.SetActive(true);
+        tutorialText.text = msg;
 
-            case Step.BuildStairs:
-                tutorialText.text = "Great! Now try to build a staircase up this wall using the boxes";
-                break;
+        if (messageDuration > 0f)
+            yield return new WaitForSeconds(messageDuration);
 
-            case Step.PullBigBox:
-                tutorialText.text = "Select the BIG box and drag it toward you using the SCROLL WHEEL";
-                break;
+        tutorialText.text = "";
+        tutorialText.gameObject.SetActive(false);
 
-            case Step.TutorialDone:
-                tutorialText.text = "Great job — tutorial done!";
-                break;
-        }
+        _messageRoutine = null;
     }
 }
