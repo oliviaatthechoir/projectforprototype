@@ -10,7 +10,7 @@ public class SelectableBox : MonoBehaviour
     public BoxType boxType = BoxType.Small;
 
     [Header("Heavy box behavior")]
-    public float heavyMaxLift = 0.25f;     // heavy can only lift a tiny amount
+    public float heavyMaxLift = 0.25f;
 
     [Header("Materials (URP/Lit)")]
     public Material normalMaterial;
@@ -19,6 +19,18 @@ public class SelectableBox : MonoBehaviour
 
     [Header("Fade Back To Normal")]
     public float fadeBackSeconds = 0.25f;
+
+    [Header("Physics Tuning (stops rubber / flying)")]
+    [Tooltip("Caps how fast Unity can 'pop' objects apart when overlapping. Lower = less launching.")]
+    public float maxDepenetrationVelocityDynamic = 2.0f;
+
+    [Tooltip("Even lower while held to reduce pushing other boxes around.")]
+    public float maxDepenetrationVelocityHeld = 0.75f;
+
+    [Tooltip("Extra damping when released so stacks settle.")]
+    public float dragDynamic = 0.2f;
+
+    public float angularDragDynamic = 0.5f;
 
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public float heavyBaseY;
@@ -31,6 +43,13 @@ public class SelectableBox : MonoBehaviour
 
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
+    // store original rb settings so we can restore cleanly
+    private RigidbodyInterpolation _origInterpolation;
+    private CollisionDetectionMode _origCollisionMode;
+    private float _origDrag;
+    private float _origAngularDrag;
+    private float _origMaxDepenVel;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -39,6 +58,20 @@ public class SelectableBox : MonoBehaviour
 
         heavyBaseY = transform.position.y;
         IsFrozen = false;
+
+        // cache defaults
+        _origInterpolation = rb.interpolation;
+        _origCollisionMode = rb.collisionDetectionMode;
+        _origDrag = rb.linearDamping;
+        _origAngularDrag = rb.angularDamping;
+        _origMaxDepenVel = rb.maxDepenetrationVelocity;
+
+        // good defaults for boxes
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        rb.maxDepenetrationVelocity = maxDepenetrationVelocityDynamic;
+        rb.linearDamping = dragDynamic;
+        rb.angularDamping = angularDragDynamic;
 
         SetNormalInstant();
     }
@@ -123,15 +156,19 @@ public class SelectableBox : MonoBehaviour
 
     public void BeginHold()
     {
-        // Selecting a frozen box again should unfreeze it first.
         if (IsFrozen) UnfreezeToDynamic();
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
+        // holding: make it stable and reduce overlap “kick”
         rb.useGravity = false;
-        rb.isKinematic = true;                 
+        rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.None;
+
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.maxDepenetrationVelocity = maxDepenetrationVelocityHeld;
     }
 
     public void DropDynamic()
@@ -139,6 +176,16 @@ public class SelectableBox : MonoBehaviour
         rb.isKinematic = false;
         rb.constraints = RigidbodyConstraints.None;
         rb.useGravity = true;
+
+        // reduce “pop” on release
+        rb.maxDepenetrationVelocity = maxDepenetrationVelocityDynamic;
+
+        // add a touch of damping so stacks settle
+        rb.linearDamping = dragDynamic;
+        rb.angularDamping = angularDragDynamic;
+
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -155,6 +202,9 @@ public class SelectableBox : MonoBehaviour
         rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.FreezeAll;
 
+        // frozen should never “kick” things away
+        rb.maxDepenetrationVelocity = maxDepenetrationVelocityHeld;
+
         SetFrozenVisual();
     }
 
@@ -165,6 +215,13 @@ public class SelectableBox : MonoBehaviour
         rb.constraints = RigidbodyConstraints.None;
         rb.isKinematic = false;
         rb.useGravity = true;
+
+        rb.maxDepenetrationVelocity = maxDepenetrationVelocityDynamic;
+        rb.linearDamping = dragDynamic;
+        rb.angularDamping = angularDragDynamic;
+
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;

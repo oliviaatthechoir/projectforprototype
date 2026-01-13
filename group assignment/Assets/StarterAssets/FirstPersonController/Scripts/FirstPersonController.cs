@@ -68,7 +68,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM
                 return _playerInput.currentControlScheme == "KeyboardMouse";
 #else
-				return false;
+                return false;
 #endif
             }
         }
@@ -86,7 +86,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
 #else
-			Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
+            Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
             _jumpTimeoutDelta = JumpTimeout;
@@ -95,10 +95,10 @@ namespace StarterAssets
 
         private void Update()
         {
-            // ✅ IMPORTANT: grounded first (fixes slopes)
+            // Grounded first (helps slopes)
             GroundedCheck();
 
-            // ✅ coyote timer (fixes one-frame grounded flicker)
+            // Coyote timer
             if (Grounded) _coyoteTimeRemaining = CoyoteTime;
             else _coyoteTimeRemaining -= Time.deltaTime;
 
@@ -164,7 +164,6 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            // ✅ Treat as "grounded" for jump if within coyote time
             bool canJumpAsGrounded = Grounded || _coyoteTimeRemaining > 0f;
 
             if (canJumpAsGrounded)
@@ -174,27 +173,34 @@ namespace StarterAssets
                 if (_verticalVelocity < 0.0f)
                     _verticalVelocity = -2f;
 
-                // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-                {
-                    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-                    // consume coyote so you can't double-jump off it
-                    _coyoteTimeRemaining = 0f;
-                }
-
+                // Jump timeout counts down only when grounded-ish
                 if (_jumpTimeoutDelta >= 0.0f)
                     _jumpTimeoutDelta -= Time.deltaTime;
+
+                // JUMP (one-shot)
+                if (_input.jump)
+                {
+                    if (_jumpTimeoutDelta <= 0.0f)
+                    {
+                        _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+                        _coyoteTimeRemaining = 0f;
+                        _jumpTimeoutDelta = JumpTimeout; // prevent immediate re-jump on next frame
+                    }
+
+                    // IMPORTANT: consume jump so holding space doesn't spam jump forever
+                    _input.jump = false;
+                }
             }
             else
             {
+                // Reset jump timeout once we're properly airborne
                 _jumpTimeoutDelta = JumpTimeout;
 
                 if (_fallTimeoutDelta >= 0.0f)
                     _fallTimeoutDelta -= Time.deltaTime;
 
-                // ✅ don't instantly delete jump input here; let input system handle it
-                // (this is what was killing slope jumps when grounded flickered)
+                // also consume jump while airborne (prevents buffering causing repeated jumps on landing)
+                if (_input.jump) _input.jump = false;
             }
 
             if (_verticalVelocity < _terminalVelocity)
@@ -214,7 +220,6 @@ namespace StarterAssets
             Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
 
             Gizmos.color = Grounded ? transparentGreen : transparentRed;
-
             Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
         }
     }

@@ -1,0 +1,835 @@
+fileFormatVersion: 2
+guid: f7abc95f4e54eaf4d8f044c245447b75
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: icons_for_UX_copy_11
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 2632
+        width: 608
+        height: 454
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f3f78dd9d5d8fd4187d421ebf40def2
+      internalID: -344832684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_15
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 2253
+        width: 111
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e056d3121daf58d4a90207a87413c8af
+      internalID: 472343402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_16
+      rect:
+        serializedVersion: 2
+        x: 414
+        y: 2375
+        width: 110
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39ccc2d3611357e49917679c62bae53c
+      internalID: -1572499006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_17
+      rect:
+        serializedVersion: 2
+        x: 485
+        y: 2253
+        width: 109
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 109fbdfedc95abe41abd91cab9057ef8
+      internalID: 160585078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_18
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 2228
+        width: 282
+        height: 287
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16ded0268b91919448563732fde7ab4a
+      internalID: -1441473138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_19
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 2220
+        width: 180
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b11d99be91649044281fec3f02bbfdc0
+      internalID: -1620113348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_20
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 2195
+        width: 353
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae1073afd05d2664fa4673cea77e4d40
+      internalID: -49193498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_21
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 2195
+        width: 353
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ea054e9c5fa50a542a203fa8b15805df
+      internalID: -1628790982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_22
+      rect:
+        serializedVersion: 2
+        x: 1255
+        y: 2195
+        width: 355
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 552fd0145127ab241920c77736f82f19
+      internalID: -1602030654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_23
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 1828
+        width: 242
+        height: 333
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61b4161fa7bf7b7499e32ff14e077327
+      internalID: 926732621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_24
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 1828
+        width: 243
+        height: 333
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56cb1e9af294702499897abfcf629b34
+      internalID: -225047905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_25
+      rect:
+        serializedVersion: 2
+        x: 1311
+        y: 1828
+        width: 242
+        height: 333
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: de8200967fe0b8a4b9f66f2654624f4d
+      internalID: -1629600484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_27
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 1409
+        width: 180
+        height: 216
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d9917b222e4920d42ac999f38c5d1366
+      internalID: -2143310447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_34
+      rect:
+        serializedVersion: 2
+        x: 1150
+        y: 1290
+        width: 225
+        height: 334
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 109dfc6dd50fbde4fb90b7dc4ab1897c
+      internalID: 1871210055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_36
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 1207
+        width: 179
+        height: 217
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 011273d81c812fa4d859ba5e4f82b1a4
+      internalID: 236222564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_39
+      rect:
+        serializedVersion: 2
+        x: 354
+        y: 1203
+        width: 180
+        height: 220
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a5f738bb515ba845910047e4a6a5df0
+      internalID: -692360290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_42
+      rect:
+        serializedVersion: 2
+        x: 694
+        y: 1234
+        width: 232
+        height: 344
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59396037e95f8ca4cb177ea9b5bb2f2c
+      internalID: 1736550056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_43
+      rect:
+        serializedVersion: 2
+        x: 1081
+        y: 1255
+        width: 353
+        height: 52
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a03e7ff13c9945a4e9e10db97a1a0e5a
+      internalID: 348472336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_44
+      rect:
+        serializedVersion: 2
+        x: 1197
+        y: 1084
+        width: 135
+        height: 133
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7cef6cdb2157bf041bf7a63240a01049
+      internalID: 590421488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_45
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 668
+        width: 111
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fad316e20721d014e9f29fedb5886d92
+      internalID: 1017839886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_46
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 790
+        width: 110
+        height: 131
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b439a7f24f0005649bd05483d2955e48
+      internalID: 2033728675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_47
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 668
+        width: 109
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eed1961767730404f946639ee89d82a1
+      internalID: -923074435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_48
+      rect:
+        serializedVersion: 2
+        x: 745
+        y: 642
+        width: 282
+        height: 286
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d401598b0678914786f0ee4887974a2
+      internalID: -767584426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_49
+      rect:
+        serializedVersion: 2
+        x: 1258
+        y: 633
+        width: 178
+        height: 268
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 921b694906688364f91dae2d8e549ac7
+      internalID: 1804628862
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_50
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 608
+        width: 354
+        height: 54
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf3f20f4d331f214f85f63302ecd1e4e
+      internalID: 1989775208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_51
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 608
+        width: 354
+        height: 54
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13d4fb9c8c69314469b3741e83f302c6
+      internalID: -1112575293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_52
+      rect:
+        serializedVersion: 2
+        x: 1174
+        y: 608
+        width: 355
+        height: 54
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f667672154964184fa9e0e4d31811c20
+      internalID: -1078207458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_53
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 242
+        width: 242
+        height: 332
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d56a26ade725f24abf0594f664484d4
+      internalID: 1167347681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_54
+      rect:
+        serializedVersion: 2
+        x: 764
+        y: 242
+        width: 243
+        height: 332
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df4fa285c69f74a4a9e346a9d8b07099
+      internalID: 666028450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: icons_for_UX_copy_55
+      rect:
+        serializedVersion: 2
+        x: 1230
+        y: 242
+        width: 242
+        height: 332
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c75ca200bd1616649b58dc725f6eb84d
+      internalID: 1852162975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 1cc8b07090e92c14ba8309a300563def
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":462.0,"y":881.0},"gridSpriteOffset":{"x":268.0,"y":184.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      icons_for_UX_copy_0: 965535074
+      icons_for_UX_copy_1: -2016264972
+      icons_for_UX_copy_10: -2008701867
+      icons_for_UX_copy_11: -344832684
+      icons_for_UX_copy_12: 1422138973
+      icons_for_UX_copy_13: 1654979846
+      icons_for_UX_copy_14: -838646970
+      icons_for_UX_copy_15: 472343402
+      icons_for_UX_copy_16: -1572499006
+      icons_for_UX_copy_17: 160585078
+      icons_for_UX_copy_18: -1441473138
+      icons_for_UX_copy_19: -1620113348
+      icons_for_UX_copy_2: -1630140391
+      icons_for_UX_copy_20: -49193498
+      icons_for_UX_copy_21: -1628790982
+      icons_for_UX_copy_22: -1602030654
+      icons_for_UX_copy_23: 926732621
+      icons_for_UX_copy_24: -225047905
+      icons_for_UX_copy_25: -1629600484
+      icons_for_UX_copy_26: -1009061856
+      icons_for_UX_copy_27: -2143310447
+      icons_for_UX_copy_28: 1637802998
+      icons_for_UX_copy_29: -1770543902
+      icons_for_UX_copy_3: 646444830
+      icons_for_UX_copy_30: 1953860031
+      icons_for_UX_copy_31: -340874238
+      icons_for_UX_copy_32: 607769927
+      icons_for_UX_copy_33: 2063398450
+      icons_for_UX_copy_34: 1871210055
+      icons_for_UX_copy_35: 713953330
+      icons_for_UX_copy_36: 236222564
+      icons_for_UX_copy_37: 1054882469
+      icons_for_UX_copy_38: -53082658
+      icons_for_UX_copy_39: -692360290
+      icons_for_UX_copy_4: 1438016655
+      icons_for_UX_copy_40: 280541928
+      icons_for_UX_copy_41: -1023490146
+      icons_for_UX_copy_42: 1736550056
+      icons_for_UX_copy_43: 348472336
+      icons_for_UX_copy_44: 590421488
+      icons_for_UX_copy_45: 1017839886
+      icons_for_UX_copy_46: 2033728675
+      icons_for_UX_copy_47: -923074435
+      icons_for_UX_copy_48: -767584426
+      icons_for_UX_copy_49: 1804628862
+      icons_for_UX_copy_5: 492995323
+      icons_for_UX_copy_50: 1989775208
+      icons_for_UX_copy_51: -1112575293
+      icons_for_UX_copy_52: -1078207458
+      icons_for_UX_copy_53: 1167347681
+      icons_for_UX_copy_54: 666028450
+      icons_for_UX_copy_55: 1852162975
+      icons_for_UX_copy_6: -1647757864
+      icons_for_UX_copy_7: 1495908106
+      icons_for_UX_copy_8: -1401602570
+      icons_for_UX_copy_9: 33713645
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

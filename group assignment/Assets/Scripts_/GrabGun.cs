@@ -44,6 +44,21 @@ public class GrabTool : MonoBehaviour
     [Header("Grab Rules")]
     public bool requireAimAtSelectedToGrab = true;
 
+    // ---------------- UI HOOKUP ----------------
+    [Header("UI (Optional)")]
+    [Tooltip("Exactly 3 white cube icons, left->right.")]
+    public GameObject[] selectionWhiteIcons = new GameObject[3];
+
+    [Tooltip("Exactly 3 orange cube icons, left->right.")]
+    public GameObject[] selectionOrangeIcons = new GameObject[3];
+
+    [Tooltip("Freeze icon shown when freeze is OFF.")]
+    public GameObject freezeGrayIcon;
+
+    [Tooltip("Freeze icon shown when freeze is ON.")]
+    public GameObject freezeBlueIcon;
+    // ------------------------------------------
+
     // ---------------- EVENTS for Tutorial/UI ----------------
     public event Action<SelectableBox> BoxSelected;
     public event Action<SelectableBox> BoxDeselected;
@@ -84,6 +99,10 @@ public class GrabTool : MonoBehaviour
         }
 
         grabDistance = Mathf.Clamp(6f, minGrabDistance, maxGrabDistance);
+
+        // Initialize UI to correct state
+        UpdateSelectionUI();
+        UpdateFreezeUI();
     }
 
     void Update()
@@ -94,6 +113,9 @@ public class GrabTool : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current[freezeKey].wasPressedThisFrame)
         {
             freezeMode = !freezeMode;
+
+            UpdateFreezeUI();
+
             FreezeModeChanged?.Invoke(freezeMode);
         }
 
@@ -122,6 +144,7 @@ public class GrabTool : MonoBehaviour
         if (selected.Contains(box))
         {
             Deselect(box);
+            UpdateSelectionUI();
             return;
         }
 
@@ -129,7 +152,9 @@ public class GrabTool : MonoBehaviour
         if (box.IsFrozen)
         {
             freezeMode = false;
+            UpdateFreezeUI();
             FreezeModeChanged?.Invoke(freezeMode);
+
             box.UnfreezeToDynamic();
         }
 
@@ -144,6 +169,8 @@ public class GrabTool : MonoBehaviour
 
             SelectedSomethingThisFrame = true;
             BoxSelected?.Invoke(box);
+
+            UpdateSelectionUI();
             return;
         }
 
@@ -161,6 +188,8 @@ public class GrabTool : MonoBehaviour
 
         SelectedSomethingThisFrame = true;
         BoxSelected?.Invoke(box);
+
+        UpdateSelectionUI();
     }
 
     // ---------------- Grabbing ----------------
@@ -208,8 +237,7 @@ public class GrabTool : MonoBehaviour
                 Vector3 offsetWorld = b.transform.position - grabPoint.position;
                 Vector3 offsetLocal = Quaternion.Inverse(grabPoint.rotation) * offsetWorld;
 
-                // ✅ KEY FIX: DO NOT preserve depth offset.
-                // Depth is controlled only by grabDistance, so it will not "spring back".
+                // ✅ KEY: DO NOT preserve depth offset (prevents "spring back" on scroll stop)
                 offsetLocal.z = 0f;
 
                 localOffsets[b] = offsetLocal;
@@ -238,7 +266,6 @@ public class GrabTool : MonoBehaviour
 
             float delta = notches * scrollStrength * distanceFactor;
 
-            // ✅ delta can be positive OR negative -> push OR pull
             grabDistance = Mathf.Clamp(grabDistance + delta, minGrabDistance, maxGrabDistance);
         }
 
@@ -313,13 +340,42 @@ public class GrabTool : MonoBehaviour
             localOffsets.Clear();
             selected.Clear();
 
+            UpdateSelectionUI();
+
             // Freeze resets OFF after use
             if (freezeMode)
             {
                 freezeMode = false;
+                UpdateFreezeUI();
                 FreezeModeChanged?.Invoke(freezeMode);
             }
         }
+    }
+
+    // ---------------- UI Helpers ----------------
+
+    void UpdateSelectionUI()
+    {
+        // Only update if arrays exist
+        if (selectionWhiteIcons == null || selectionOrangeIcons == null) return;
+
+        int count = selected.Count;
+
+        int len = Mathf.Min(selectionWhiteIcons.Length, selectionOrangeIcons.Length);
+
+        for (int i = 0; i < len; i++)
+        {
+            bool active = i < count;
+
+            if (selectionWhiteIcons[i]) selectionWhiteIcons[i].SetActive(!active);
+            if (selectionOrangeIcons[i]) selectionOrangeIcons[i].SetActive(active);
+        }
+    }
+
+    void UpdateFreezeUI()
+    {
+        if (freezeGrayIcon) freezeGrayIcon.SetActive(!freezeMode);
+        if (freezeBlueIcon) freezeBlueIcon.SetActive(freezeMode);
     }
 
     // ---------------- Ray helpers ----------------
