@@ -35,7 +35,7 @@ public class TutorialManager : MonoBehaviour
         ShowMessage(startMessage);
     }
 
-    // Call from triggers (or anything else)
+    // Call from triggers 
     public void ShowFreezeReminder()
     {
         ShowMessage(freezeReminderMessage);

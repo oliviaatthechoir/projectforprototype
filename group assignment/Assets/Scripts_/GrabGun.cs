@@ -77,7 +77,7 @@ public class GrabTool : MonoBehaviour
     private bool freezeMode;
     private float grabDistance;
 
-    // These exist (won’t break anything even if you no longer use them)
+    // These exist
     public bool SelectedSomethingThisFrame { get; private set; }
     public bool GrabStartedThisFrame { get; private set; }
     public bool DroppedUnfrozenThisFrame { get; private set; }
@@ -86,7 +86,7 @@ public class GrabTool : MonoBehaviour
     public bool IsGrabbingNow => isGrabbing;
     public bool HasAnySelected => selected.Count > 0;
 
-    private const float WheelStep = 120f; // many mice report +/-120 per notch
+    private const float WheelStep = 120f; 
 
     void Start()
     {
@@ -208,7 +208,7 @@ public class GrabTool : MonoBehaviour
                 if (!TrySpherecastBox(interactRange, grabAimRadius, out aimedBox)) return;
                 if (!selected.Contains(aimedBox)) return;
 
-                // Start distance based on what you aimed at (feels good at range)
+                // Start distance based on what you aimed at 
                 grabDistance = Mathf.Clamp(
                     Vector3.Distance(cam.transform.position, aimedBox.transform.position),
                     minGrabDistance, maxGrabDistance
@@ -237,7 +237,7 @@ public class GrabTool : MonoBehaviour
                 Vector3 offsetWorld = b.transform.position - grabPoint.position;
                 Vector3 offsetLocal = Quaternion.Inverse(grabPoint.rotation) * offsetWorld;
 
-                // ✅ KEY: DO NOT preserve depth offset (prevents "spring back" on scroll stop)
+                
                 offsetLocal.z = 0f;
 
                 localOffsets[b] = offsetLocal;
@@ -251,7 +251,7 @@ public class GrabTool : MonoBehaviour
             if (freezeMode) b.SetFrozenVisual();
             else b.SetSelectedVisual();
 
-        // Scroll push/pull (true magnet, both directions)
+        // Scroll push/pull 
         float scrollRaw = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scrollRaw) > 0.01f)
         {
@@ -260,7 +260,7 @@ public class GrabTool : MonoBehaviour
             float notches = scrollRaw / WheelStep;
             if (invertScroll) notches *= -1f;
 
-            // Stronger when farther away (GMod-ish)
+            // Stronger when farther away 
             float dist01 = Mathf.InverseLerp(minGrabDistance, maxGrabDistance, grabDistance);
             float distanceFactor = Mathf.Lerp(1f, 8f, dist01);
 

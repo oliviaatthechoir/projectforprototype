@@ -161,7 +161,7 @@ public class SelectableBox : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // holding: make it stable and reduce overlap “kick”
+        // holding: make it stable and reduce overlap 
         rb.useGravity = false;
         rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.None;
